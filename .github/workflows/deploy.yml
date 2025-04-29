@@ -43,9 +43,9 @@ jobs:
         run: |
           aws elasticbeanstalk create-application-version \
             --application-name "${{ secrets.APPLICATION_NAME }}" \
-            --version-label "v-1" \
+            --version-label "v-3" \
             --source-bundle S3Bucket=${{ secrets.S3_BUCKET }},S3Key=app.zip
 
           aws elasticbeanstalk update-environment \
             --environment-name "${{ secrets.ENVIRONMENT_NAME }}" \
-            --version-label "v-1"
+            --version-label "v-3"
