@@ -1,9 +1,9 @@
-name: Deploy to Elastic Beanstalk
+name: Deploy Spring Boot to Elastic Beanstalk
 
 on:
   push:
     branches:
-      - main  # or 'master' or whatever your main branch is
+      - main  # Or the branch you want to deploy from
 
 jobs:
   deploy:
@@ -11,37 +11,41 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v3
         with:
+          java-version: '17'  # Match your project version
           distribution: 'temurin'
-          java-version: '17'
 
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      - name: Zip application
+        run: |
+          mkdir app
+          cp target/*.jar app/application.jar
+          zip -r app.zip app
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Upload to S3
         run: |
-          zip -r app.zip target/*.jar
           aws s3 cp app.zip s3://${{ secrets.S3_BUCKET }}/app.zip
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Deploy to Elastic Beanstalk
         run: |
           aws elasticbeanstalk create-application-version \
-            --application-name ${{ secrets.APPLICATION_NAME }} \
-            --version-label v-${{ github.run_number }} \
+            --application-name "${{ secrets.APPLICATION_NAME }}" \
+            --version-label "v-${{ github.run_number }}" \
             --source-bundle S3Bucket=${{ secrets.S3_BUCKET }},S3Key=app.zip
 
           aws elasticbeanstalk update-environment \
-            --environment-name ${{ secrets.ENVIRONMENT_NAME }} \
-            --version-label v-${{ github.run_number }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+            --environment-name "${{ secrets.ENVIRONMENT_NAME }}" \
+            --version-label "v-${{ github.run_number }}"
