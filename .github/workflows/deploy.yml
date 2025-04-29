@@ -35,12 +35,12 @@ jobs:
         run: |
           aws elasticbeanstalk create-application-version \
             --application-name ${{ secrets.APPLICATION_NAME }} \
-            --version-label v-${{ github.run_number }} \
+            --version-label deployment ${{ github.run_number }} \
             --source-bundle S3Bucket=${{ secrets.S3_BUCKET }},S3Key=app.zip
 
           aws elasticbeanstalk update-environment \
             --environment-name ${{ secrets.ENVIRONMENT_NAME }} \
-            --version-label v-${{ github.run_number }}
+            --version-label deployment ${{ github.run_number }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
