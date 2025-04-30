@@ -9,17 +9,27 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+
       - name: Setup Maven
         uses: stCarolas/setup-maven@v5
         with:
           maven-version: 3.8.2
+
       - name: Build project
         run: mvn clean package -DskipTests
+
+      - name: Zip JAR file
+        run: |
+          mkdir bundle
+          cp target/*.jar bundle/application.jar
+          zip -r app.zip bundle
+
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v22
         with:
@@ -30,4 +40,4 @@ jobs:
           version_label: ${{ github.sha}}
           region: ${{ secrets.AWS_REGION }}
           existing_bucket_name: ${{ secrets.S3_BUCKET }}
-          deployment_package: target/*.jar.original
+          deployment_package: app.zip
