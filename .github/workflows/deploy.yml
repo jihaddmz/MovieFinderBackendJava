@@ -1,51 +1,33 @@
-name: Deploy Spring Boot to Elastic Beanstalk
-
+name: Deploy production
 on:
   push:
     branches:
-      - main  # Or the branch you want to deploy from
-
+      - main
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'  # Match your project version
           distribution: 'temurin'
-
-      - name: Build with Maven
-        run: mvn clean package -DskipTests
-
-      - name: Zip application
-        run: |
-          mkdir app
-          cp target/*.jar app/application.jar
-          zip -r app.zip app
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+          java-version: '17'
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v5
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Upload to S3
-        run: |
-          aws s3 cp app.zip s3://${{ secrets.S3_BUCKET }}/app.zip
-
-      - name: Deploy to Elastic Beanstalk
-        run: |
-          aws elasticbeanstalk create-application-version \
-            --application-name "${{ secrets.APPLICATION_NAME }}" \
-            --version-label "v-${{ github.run_number }}"  \
-            --source-bundle S3Bucket=${{ secrets.S3_BUCKET }},S3Key=app.zip
-
-          aws elasticbeanstalk update-environment \
-            --environment-name "${{ secrets.ENVIRONMENT_NAME }}" \
-            --version-label "v-${{ github.run_number }}"
+          maven-version: 3.8.2
+      - name: Build project
+        run: mvn clean package -DskipTests
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ${{ APPLICATION_NAME }}
+          environment_name: ${{ ENVIRONMENT_NAME }}
+          version_label: ${{ github.sha}}
+          region: ${{ AWS_REGION }}
+          existing_bucket_name: ${{ S3_BUCKET }}
+          deployment_package: target/*.jar
