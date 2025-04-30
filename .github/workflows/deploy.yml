@@ -30,4 +30,4 @@ jobs:
           version_label: ${{ github.sha}}
           region: ${{ secrets.AWS_REGION }}
           existing_bucket_name: ${{ secrets.S3_BUCKET }}
-          deployment_package: target/*.jar
+          deployment_package: target/*.jar.original
