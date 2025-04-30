@@ -25,7 +25,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configure(httpSecurity)) // don't block cors requests and use the one we define in CorsConfig class
+                .cors(cors -> cors.disable()) // don't block cors requests and use the one we define in CorsConfig class
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/**", "/api/movies/**").permitAll()
                         .anyRequest().authenticated()).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
