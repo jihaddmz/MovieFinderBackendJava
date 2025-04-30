@@ -25,9 +25,9 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: ${{ APPLICATION_NAME }}
-          environment_name: ${{ ENVIRONMENT_NAME }}
+          application_name: ${{ secrets.APPLICATION_NAME }}
+          environment_name: ${{ secrets.ENVIRONMENT_NAME }}
           version_label: ${{ github.sha}}
-          region: ${{ AWS_REGION }}
-          existing_bucket_name: ${{ S3_BUCKET }}
+          region: ${{ secrets.AWS_REGION }}
+          existing_bucket_name: ${{ secrets.S3_BUCKET }}
           deployment_package: target/*.jar
