@@ -2,6 +2,9 @@ package com.jihaddmz.moviefinderbackendjava.controllers;
 
 import com.jihaddmz.moviefinderbackendjava.entities.EntityMovie;
 import com.jihaddmz.moviefinderbackendjava.services.ServiceMovie;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +25,16 @@ public class ControllerMovie {
     }
 
     @GetMapping("")
-    public Map<String, Object> getMovies(@RequestParam(required = false) String query) {
+    public PagedModel<EntityMovie> fetchMovies(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "15") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        PagedModel<EntityMovie> result = new PagedModel<>(serviceMovie.fetchMovies(pageable));
+
+        return result;
+    }
+
+    @GetMapping("/search")
+    public Map<String, Object> getMovies(@RequestParam String query) {
         Map<String, Object> result = new HashMap<>();
         List<EntityMovie> movies = serviceMovie.getMovies(query);
         result.put("length", movies.size());

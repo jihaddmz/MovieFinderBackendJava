@@ -3,9 +3,10 @@ package com.jihaddmz.moviefinderbackendjava.services;
 import com.jihaddmz.moviefinderbackendjava.entities.EntityMovie;
 import com.jihaddmz.moviefinderbackendjava.external.TMDBAPIService;
 import com.jihaddmz.moviefinderbackendjava.repositories.RepoMovie;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,11 +31,16 @@ public class ServiceMovie {
         }
     }
 
+    public Page<EntityMovie> fetchMovies(Pageable pageable) {
+
+        return repoMovie.findAll(pageable);
+    }
+
     public List<EntityMovie> getMovies(String query) {
         List<EntityMovie> movies;
 
         if (query != null) {
-           movies = repoMovie.findAllByTitleContainsIgnoreCase(query);
+            movies = repoMovie.findAllByTitleContainsIgnoreCase(query);
         } else {
             movies = repoMovie.findAll();
         }
