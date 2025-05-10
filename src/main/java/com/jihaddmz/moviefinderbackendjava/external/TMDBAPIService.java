@@ -1,6 +1,6 @@
 package com.jihaddmz.moviefinderbackendjava.external;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -11,11 +11,10 @@ public class TMDBAPIService {
 
     private final WebClient webClient;
 
-    private final String tmdbApiKey;
+    @Value("app.TMDBAPI_KEY")
+    private String tmdbApiKey;
 
     public TMDBAPIService() {
-        Dotenv dotenv = Dotenv.load();
-        this.tmdbApiKey = dotenv.get("TMDB_API");
         this.webClient = WebClient.create();
     }
 
