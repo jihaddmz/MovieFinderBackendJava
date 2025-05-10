@@ -37,7 +37,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: jihadmz/oneappurlbackend:latest
+          tags: jihadmz/movie-finder-backend-java:latest
           platforms: linux/amd64
 
       - name: Trigger Render Deploy Hook
